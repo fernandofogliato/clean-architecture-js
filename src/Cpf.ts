@@ -1,10 +1,18 @@
-export default class CpfValidator {
+export default class Cpf {
   private FACTOR_DIGIT_1 = 10;
   private FACTOR_DIGIT_2 = 11;
   private MAX_DIGITS_1 = 9;
   private MAX_DIGITS_2 = 10;
+  value: string;
 
-  isValid(formattedCpf = ""): Boolean {
+  constructor(value: string) {
+    if (!this.isValid(value)) {
+        throw new Error('Invalid cpf');
+    }
+    this.value = value;
+  }
+
+  private isValid(formattedCpf = ""): Boolean {
       const cpf = this.extractDigits(formattedCpf);
       if (this.isInvalidLength(cpf)) return false;
       if (this.isBlocked(cpf)) return false;

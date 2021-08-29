@@ -1,20 +1,17 @@
 import Student from "./Student";
 
 export default class Enrollment {
-  id: string;
   student: Student;
   level: string;
   module: string;
-  classEnroll: string;
-  sequence: string;
+  classroom: string;
+  code: string;
 
-  constructor(student: Student, level: string, module: string, classEnroll: string, sequence: number) {
+  constructor (student: Student, level: string, module: string, classroom: string, code: string) {
     this.student = student;
     this.level = level;
     this.module = module;
-    this.classEnroll = classEnroll;
-    this.sequence = sequence.toString().padStart(4, '0');
-    this.id = new Date().getFullYear().toString().concat(this.level)
-      .concat(this.module).concat(this.classEnroll).concat(this.sequence);
-  }
+    this.classroom = classroom;
+    this.code = code;
+}
 }

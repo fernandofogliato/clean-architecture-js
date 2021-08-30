@@ -94,7 +94,7 @@ test('Should generate enrollment code', function () {
   }
 
   const enrollment = enrollStudent.execute(enrollmentRequest);
-  expect(enrollment.code).toEqual("2021EM1A0001")
+  expect(enrollment.code.value).toEqual("2021EM1A0001")
 });
 
 test("Should not enroll student over classroom capacity", function () {
@@ -129,9 +129,15 @@ test("Should not enroll student over classroom capacity", function () {
 });
 
 test('Should not enroll after que end of the class', function () {
-  enrollStudent.classroomRepository.save(new Classroom(
-    "EM", "3", "B", 2, moment().subtract(7, 'days').toDate(), moment().subtract(1, 'days').toDate())
-  );
+  enrollStudent.classroomRepository.save(new Classroom({
+    level: "EM", 
+    module: "3", 
+    code: "B", 
+    capacity: 2, 
+    startDate: moment().subtract(7, 'days').toDate(), 
+    endDate: moment().subtract(1, 'days').toDate()
+  }));  
+
   const enrollmentRequest = {
     student: {
         name: "Maria Carolina Fonseca",
@@ -147,9 +153,15 @@ test('Should not enroll after que end of the class', function () {
 });
 
 test('Should not enroll after 25% of the start of the class', function () {
-  enrollStudent.classroomRepository.save(new Classroom(
-    "EM", "3", "B", 2, moment().subtract(30, 'days').toDate(), moment().add(1, 'days').toDate())
-  );
+  enrollStudent.classroomRepository.save(new Classroom({
+    level: "EM", 
+    module: "3", 
+    code: "B", 
+    capacity: 2, 
+    startDate: moment().subtract(30, 'days').toDate(), 
+    endDate: moment().add(1, 'days').toDate()
+  }));
+
   const enrollmentRequest = {
     student: {
         name: "Maria Carolina Fonseca",
@@ -164,10 +176,16 @@ test('Should not enroll after 25% of the start of the class', function () {
   expect(() => enrollStudent.execute(enrollmentRequest)).toThrow(new Error("Classroom is already started"));
 });
 
-test('Should not enroll before 25% of the start of the class', function () {
-  enrollStudent.classroomRepository.save(new Classroom(
-    "EM", "3", "B", 2, moment().subtract(5, 'days').toDate(), moment().add(25, 'days').toDate())
-  );
+test('Should enroll before 25% of the start of the class', function () {
+  enrollStudent.classroomRepository.save(new Classroom({
+    level: "EM", 
+    module: "3", 
+    code: "B", 
+    capacity: 2, 
+    startDate: moment().subtract(5, 'days').toDate(), 
+    endDate: moment().add(25, 'days').toDate()
+  }));  
+
   const enrollmentRequest = {
     student: {
         name: "Maria Carolina Fonseca",
@@ -196,6 +214,6 @@ test('Should generate the invoices based on the number of installments, rounding
   }
 
   const enrollment = enrollStudent.execute(enrollmentRequest);
-  expect(enrollment.invoices.length).toEqual(enrollmentRequest.installments);
+  expect(enrollment.invoices).toHaveLength(enrollmentRequest.installments);
   expect(enrollment.invoices[11].value).toEqual(1416.63);
 });

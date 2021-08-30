@@ -7,7 +7,14 @@ export default class ClassroomRepositoryMemory implements ClassroomRepository {
 
     constructor () {
         this.classrooms = [];
-        this.save(new Classroom("EM", "3", "A", 2, new Date('2020-01-01'), new Date('2999-01-01')));
+        this.save(new Classroom({
+            level: "EM", 
+            module: "3", 
+            code: "A", 
+            capacity: 2, 
+            startDate: new Date('2020-01-01'), 
+            endDate: new Date('2999-01-01')
+        }));
     }
 
     save(classroom: Classroom): void {

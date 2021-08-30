@@ -8,7 +8,7 @@ export default class Classroom {
   startDate: Date;
   endDate: Date;
 
-  constructor(level: string, module: string, code: string, capacity: number, startDate: Date, endDate: Date) {
+  constructor({ level, module, code, capacity, startDate, endDate } : { level: string, module: string, code: string, capacity: number, startDate: Date, endDate: Date }) {
     this.level = level;
     this.module = module;
     this.code = code;
@@ -17,12 +17,20 @@ export default class Classroom {
     this.endDate = endDate;
   }
 
-  getTimeProgress() {
-    const actualDate = moment();
+  isFinished(issueDate: Date): boolean {
+    return moment(issueDate).isAfter(this.endDate);
+  }
+
+  isStarted(issueDate: Date): boolean {
+    return moment(issueDate).isAfter(this.startDate);
+  }
+
+  getProgress(issueDate: Date) {
+    const actualDate = moment(issueDate);
     const startDate = moment(this.startDate);
     const endDate = moment(this.endDate);
-    if (actualDate.isAfter(endDate)) return 100;
-    if (startDate.isAfter(actualDate)) return 0;
+    if (this.isFinished(issueDate)) return 100;
+    if (!this.isStarted(issueDate)) return 0;
     const days = endDate.diff(startDate, 'days') + 1;
     const daysSinceStart = actualDate.diff(startDate, 'days') + 1;
     return (daysSinceStart * 100) / days;

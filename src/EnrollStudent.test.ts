@@ -1,3 +1,5 @@
+import moment from "moment";
+import Classroom from "./Classroom";
 import ClassroomRepositoryMemory from "./ClassroomRepositoryMemory";
 import EnrollmentRepositoryMemory from "./EnrollmentRepositoryMemory";
 import EnrollStudent from "./EnrollStudent";
@@ -124,4 +126,76 @@ test("Should not enroll student over classroom capacity", function () {
       classroom: "A"
   };
   expect(() => enrollStudent.execute(enrollmentRequest)).toThrow(new Error("Classroom is over capacity"));
+});
+
+test('Should not enroll after que end of the class', function () {
+  enrollStudent.classroomRepository.save(new Classroom(
+    "EM", "3", "B", 2, moment().subtract(7, 'days').toDate(), moment().subtract(1, 'days').toDate())
+  );
+  const enrollmentRequest = {
+    student: {
+        name: "Maria Carolina Fonseca",
+        cpf: "755.525.774-26",
+        birthDate: "2002-03-12"
+    },
+    level: "EM",
+    module: "1",
+    classroom: "B"
+  }
+
+  expect(() => enrollStudent.execute(enrollmentRequest)).toThrow(new Error("Classroom is already finished"));
+});
+
+test('Should not enroll after 25% of the start of the class', function () {
+  enrollStudent.classroomRepository.save(new Classroom(
+    "EM", "3", "B", 2, moment().subtract(30, 'days').toDate(), moment().add(1, 'days').toDate())
+  );
+  const enrollmentRequest = {
+    student: {
+        name: "Maria Carolina Fonseca",
+        cpf: "755.525.774-26",
+        birthDate: "2002-03-12"
+    },
+    level: "EM",
+    module: "1",
+    classroom: "B"
+  }
+
+  expect(() => enrollStudent.execute(enrollmentRequest)).toThrow(new Error("Classroom is already started"));
+});
+
+test('Should not enroll before 25% of the start of the class', function () {
+  enrollStudent.classroomRepository.save(new Classroom(
+    "EM", "3", "B", 2, moment().subtract(5, 'days').toDate(), moment().add(25, 'days').toDate())
+  );
+  const enrollmentRequest = {
+    student: {
+        name: "Maria Carolina Fonseca",
+        cpf: "755.525.774-26",
+        birthDate: "2002-03-12"
+    },
+    level: "EM",
+    module: "1",
+    classroom: "B"
+  }
+
+  expect(() => enrollStudent.execute(enrollmentRequest)).toBeTruthy();
+});
+
+test('Should generate the invoices based on the number of installments, rounding each amount and applying the rest in the last invoice', function () {
+  const enrollmentRequest = {
+    student: {
+        name: "Maria Carolina Fonseca",
+        cpf: "755.525.774-26",
+        birthDate: "2002-03-12"
+    },
+    level: "EM",
+    module: "1",
+    classroom: "A",
+    installments: 12
+  }
+
+  const enrollment = enrollStudent.execute(enrollmentRequest);
+  expect(enrollment.invoices.length).toEqual(enrollmentRequest.installments);
+  expect(enrollment.invoices[11].value).toEqual(1416.63);
 });

@@ -1,18 +1,17 @@
   
+import Classroom from "./Classroom";
 import ClassroomRepository from "./ClassroomRepository";
 
 export default class ClassroomRepositoryMemory implements ClassroomRepository {
     classrooms: any[];
 
     constructor () {
-        this.classrooms = [
-            {
-                level: "EM",
-                module: "3",
-                code: "A",
-                capacity: 2
-            }
-        ];
+        this.classrooms = [];
+        this.save(new Classroom("EM", "3", "A", 2, new Date('2020-01-01'), new Date('2999-01-01')));
+    }
+
+    save(classroom: Classroom): void {
+       this.classrooms.push(classroom);
     }
 
     findByCode(code: string) {

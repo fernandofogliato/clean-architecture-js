@@ -1,9 +1,32 @@
-export default class Invoice {
-  installment: number;
-  value: number;
+import InvoiceEvent from "./InvoiceEvent";
 
-  constructor(installment: number, value: number) {
-    this.installment = installment;
-    this.value = value;
+export default class Invoice {
+  code: string;
+  month: number;
+  year: number;
+  amount: number;
+  events: InvoiceEvent[];
+
+  constructor (code: string, month: number, year: number, amount: number) {
+    this.code = code;
+    this.month = month;
+    this.year = year;
+    this.amount = amount;
+    this.events = [];
   }
+
+  addEvent(invoiceEvent: InvoiceEvent) {
+    this.events.push(invoiceEvent);
+  }
+
+  getBalance() {
+    return this.events.reduce((total, event) => {
+      total -= event.amount;
+      return total;
+    }, this.amount);
+  }
+
+  clone() {
+    return JSON.parse(JSON.stringify(this));
+  }  
 }

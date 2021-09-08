@@ -1,7 +1,8 @@
+import moment from "moment";
 import Classroom from "./Classroom";
 import EnrollmentCode from "./EnrollmentCode";
-import Invoice from "./Invoice";
-import InvoiceEvent from "./InvoiceEvent";
+import Invoice, { InvoiceStatus } from "./Invoice";
+import InvoiceEvent, { InvoiceEventType } from "./InvoiceEvent";
 import Level from "./Level";
 import Module from "./Module";
 import Student from "./Student";
@@ -17,7 +18,7 @@ export default class Enrollment {
   installments: number;
   invoices: Invoice[];
 
-  constructor (student: Student, level: Level, module: Module, classroom: Classroom, issueDate: Date, sequence: number, installments: number = 12) {
+  constructor(student: Student, level: Level, module: Module, classroom: Classroom, issueDate: Date, sequence: number, installments: number = 12) {
     if (student.getAge() < module.minimumAge) throw new Error("Student below minimum age");
     if (classroom.isFinished(issueDate)) throw new Error("Classroom is already finished");
     if (classroom.getProgress(issueDate) > 25) throw new Error("Classroom is already started");
@@ -46,21 +47,27 @@ export default class Enrollment {
     return invoices;
   }
 
-  getInvoiceBalance () {
+  getInvoiceBalance() {
     return this.invoices.reduce((total, invoice) => {
       total += invoice.getBalance();
       return total;
     }, 0);
   }
 
-  getInvoice (month: number, year: number): Invoice | undefined {
+  getInvoice(month: number, year: number): Invoice | undefined {
     const invoice = this.invoices.find(invoice => invoice.month === month && invoice.year === year);
     return invoice;
   }
 
-  payInvoice (month: number, year: number, amount: number) {
+  payInvoice(month: number, year: number, amount: number) {
     const invoice = this.getInvoice(month, year);
     if (!invoice) throw new Error("Invalid invoice");
-    invoice.addEvent(new InvoiceEvent("payment", amount));
+    if (invoice.status === InvoiceStatus.Paid) throw new Error("Invoice already paid");
+
+    if (invoice.status === InvoiceStatus.Overdue) {
+      invoice.addEvent(new InvoiceEvent(InvoiceEventType.Penalty, invoice.penaltyAmount));
+      invoice.addEvent(new InvoiceEvent(InvoiceEventType.Penalty, invoice.interestAmount));
+    }
+    invoice.addEvent(new InvoiceEvent(InvoiceEventType.Payment, amount));
   }
 }

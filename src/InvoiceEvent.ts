@@ -1,8 +1,14 @@
+export enum InvoiceEventType {
+  Payment,
+  Penalty,
+  Interest
+}
+
 export default class InvoiceEvent {
-  type: string;
+  type: InvoiceEventType;
   amount: number;
 
-  constructor (type: string, amount: number) {
+  constructor(type: InvoiceEventType, amount: number) {
     this.type = type;
     this.amount = amount;
   }

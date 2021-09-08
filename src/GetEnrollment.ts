@@ -8,12 +8,14 @@ export default class GetEnrollment {
     this.enrollmentRepository = repositoryFactory.createEnrollmentRepository();
   }
     
-  execute (code: string): any {
+  execute(code: string): any {
     const enrollment = this.enrollmentRepository.findByCode(code);
     const balance = enrollment?.getInvoiceBalance();
+    const invoices = enrollment?.invoices;
     return {
       code: enrollment?.code.value,
-      balance
+      balance,
+      invoices
     }
   }
 }

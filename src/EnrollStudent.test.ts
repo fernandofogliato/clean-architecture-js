@@ -11,16 +11,16 @@ beforeEach(function () {
 });
 
 test("Should not enroll without valid student name", function () {
-    const enrollmentRequest = new EnrollStudentInputData({
-      studentName: "Ana",
-      studentCpf: "755.525.774-26",
-      studentBirthDate: "2002-03-12",
-      level: "EM",
-      module: "1",
-      classroom: "A",
-      installments: 12    
-    });
-    expect(() => enrollStudent.execute(enrollmentRequest)).toThrow(new Error("Invalid student name"))
+  const enrollmentRequest = new EnrollStudentInputData({
+    studentName: "Ana",
+    studentCpf: "755.525.774-26",
+    studentBirthDate: "2002-03-12",
+    level: "EM",
+    module: "1",
+    classroom: "A",
+    installments: 12    
+  });
+  expect(() => enrollStudent.execute(enrollmentRequest)).toThrow(new Error("Invalid student name"))
 });
 
 test("Should enroll with valid student name", function () {

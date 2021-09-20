@@ -43,25 +43,25 @@ export default class Invoice {
     return JSON.parse(JSON.stringify(this));
   }
 
-  get status(): InvoiceStatus {
-    if (moment().isAfter(this.dueDate)) {
+  getStatus(date: Date): InvoiceStatus {
+    if (moment(date).isAfter(this.dueDate)) {
       return InvoiceStatus.Overdue;
     }
-    if (this.events.some(event => event.type === InvoiceEventType.Payment)) {
+    if (this.getBalance() === 0) {
       return InvoiceStatus.Paid;
     }
     return InvoiceStatus.Open;
   }
 
-  get penaltyAmount(): number {
-    if (this.status === InvoiceStatus.Overdue) {
+  getPenaltyAmount(date: Date): number {
+    if (this.getStatus(date) === InvoiceStatus.Overdue) {
       return Math.trunc(this.amount * 0.10 * 100) / 100;
     }
     return 0.
   }
 
-  get interestAmount(): number {
-    if (this.status === InvoiceStatus.Overdue) {
+  getInterestAmount(date: Date): number {
+    if (this.getStatus(date) === InvoiceStatus.Overdue) {
       const diff = moment().diff(this.dueDate, 'days') / 100;
       return Math.trunc(this.amount * diff * 100) / 100;
     }

@@ -1,6 +1,6 @@
   
-import Classroom from "./Classroom";
-import ClassroomRepository from "./ClassroomRepository";
+import Classroom from "../../../domain/entity/Classroom";
+import ClassroomRepository from "../../../domain/repository/ClassroomRepository";
 
 export default class ClassroomRepositoryMemory implements ClassroomRepository {
 	classrooms: Classroom[];
@@ -17,13 +17,14 @@ export default class ClassroomRepositoryMemory implements ClassroomRepository {
 		}));
 	}
 
-	save(classroom: Classroom): void {
+	save(classroom: Classroom): Promise<void> {
 		this.classrooms.push(classroom);
+		return Promise.resolve();
 	}
 
-	findByCode(code: string) {
+	async findByCode(code: string) {
 		const classroom = this.classrooms.find(classroom => classroom.code === code);
 		if (!classroom) throw new Error("Classroom not found");
-		return classroom
+		return Promise.resolve(classroom);
 	}
 }

@@ -1,8 +1,9 @@
-import EnrollStudent from "./EnrollStudent";
-import EnrollStudentInputData from "./EnrollStudentInputData";
-import GetEnrollment from "./GetEnrollment";
-import PayInvoice from "./PayInvoice";
-import RepositoryMemoryFactory from "./RepositoryMemoryFactory";
+import EnrollStudent from "../domain/usecase/EnrollStudent";
+import EnrollStudentInputData from "../domain/usecase/data/EnrollStudentInputData";
+import GetEnrollment from "../domain/usecase/GetEnrollment";
+import PayInvoice from "../domain/usecase/PayInvoice";
+import RepositoryMemoryFactory from "../adapter/factory/RepositoryMemoryFactory";
+import PayInvoiceInputData from "../domain/usecase/data/PayInvoiceInputData";
 
 let enrollStudent: EnrollStudent;
 let getEnrollment: GetEnrollment;
@@ -15,9 +16,7 @@ beforeEach(function () {
   payInvoice = new PayInvoice(repositoryMemoryFactory);
 });
 
-test("Should pay enrollment invoice", function () {
-  jest.useFakeTimers('modern').setSystemTime(new Date(2021, 1, 1));
-
+test("Should pay enrollment invoice", async function () {
   const enrollmentRequest = new EnrollStudentInputData({
     studentName: "Ana Maria",
     studentCpf: "864.464.227-84",
@@ -27,18 +26,22 @@ test("Should pay enrollment invoice", function () {
     classroom: "A",
     installments: 12
   });
-  enrollStudent.execute(enrollmentRequest);
+  await enrollStudent.execute(enrollmentRequest);
 
-  payInvoice.execute("2021EM1A0001", 1, 2021, 1416.66);
+  await payInvoice.execute(new PayInvoiceInputData({
+    code: "2021EM1A0001", 
+    month: 1, 
+    year: 2021, 
+    amount: 1416.66,
+    paymentDate: new Date("2021-01-01")
+  }));
 
-  const getEnrollmentOutputData = getEnrollment.execute("2021EM1A0001");
+  const getEnrollmentOutputData = await getEnrollment.execute("2021EM1A0001", new Date("2021-01-01"));
   expect(getEnrollmentOutputData.code).toBe("2021EM1A0001");
   expect(getEnrollmentOutputData.balance).toBe(15583.34);
 });
 
-test("Should pay overdue invoice", function () {
-  jest.useFakeTimers('modern').setSystemTime(new Date(2021, 1, 10));
-
+test("Should pay overdue invoice", async function () {
   const enrollmentRequest = new EnrollStudentInputData({
     studentName: "Ana Maria",
     studentCpf: "864.464.227-84",
@@ -49,10 +52,16 @@ test("Should pay overdue invoice", function () {
     installments: 12
   });
   enrollStudent.execute(enrollmentRequest);
+  
+  await payInvoice.execute(new PayInvoiceInputData({
+    code: "2021EM1A0001", 
+    month: 1, 
+    year: 2021, 
+    amount: 1629.15,
+    paymentDate: new Date("2021-06-20")
+  }));
 
-  payInvoice.execute("2021EM1A0001", 1, 2021, 1629.15);
-
-  const getEnrollmentOutputData = getEnrollment.execute("2021EM1A0001");
+  const getEnrollmentOutputData = await getEnrollment.execute("2021EM1A0001", new Date("2021-01-10"));
   expect(getEnrollmentOutputData.code).toBe("2021EM1A0001");
   expect(getEnrollmentOutputData.invoices[0].penaltyAmount).toBe(141.66);
   expect(getEnrollmentOutputData.invoices[0].interestAmount).toBe(70.83);

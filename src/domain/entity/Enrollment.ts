@@ -7,6 +7,11 @@ import Level from "./Level";
 import Module from "./Module";
 import Student from "./Student";
 
+export enum EnrollmentStatus {
+  Active,
+  Cancelled
+}
+
 export default class Enrollment {
   student: Student;
   level: Level;
@@ -17,8 +22,9 @@ export default class Enrollment {
   issueDate: Date;
   installments: number;
   invoices: Invoice[];
+  status: EnrollmentStatus;
 
-  constructor(student: Student, level: Level, module: Module, classroom: Classroom, issueDate: Date, sequence: number, installments: number = 12) {
+  constructor(student: Student, level: Level, module: Module, classroom: Classroom, issueDate: Date, sequence: number, installments: number = 12, status: EnrollmentStatus = EnrollmentStatus.Active) {
     if (student.getAge() < module.minimumAge) throw new Error("Student below minimum age");
     if (classroom.isFinished(issueDate)) throw new Error("Classroom is already finished");
     if (classroom.getProgress(issueDate) > 25) throw new Error("Classroom is already started");
@@ -32,6 +38,7 @@ export default class Enrollment {
     this.installments = installments;
     this.code = new EnrollmentCode(level.code, module.code, classroom.code, issueDate, sequence);
     this.invoices = this.calculateInvoice();
+    this.status = status;
   }
 
   private calculateInvoice(): Invoice[] {
@@ -59,14 +66,14 @@ export default class Enrollment {
     return invoice;
   }
 
-  payInvoice(month: number, year: number, amount: number) {
+  payInvoice(month: number, year: number, amount: number, paymentDate: Date) {
     const invoice = this.getInvoice(month, year);
     if (!invoice) throw new Error("Invalid invoice");
-    if (invoice.status === InvoiceStatus.Paid) throw new Error("Invoice already paid");
+    if (invoice.getStatus(paymentDate) === InvoiceStatus.Paid) throw new Error("Invoice already paid");
 
-    if (invoice.status === InvoiceStatus.Overdue) {
-      invoice.addEvent(new InvoiceEvent(InvoiceEventType.Penalty, invoice.penaltyAmount));
-      invoice.addEvent(new InvoiceEvent(InvoiceEventType.Penalty, invoice.interestAmount));
+    if (invoice.getStatus(paymentDate) === InvoiceStatus.Overdue) {
+      invoice.addEvent(new InvoiceEvent(InvoiceEventType.Penalty, invoice.getPenaltyAmount(paymentDate)));
+      invoice.addEvent(new InvoiceEvent(InvoiceEventType.Penalty, invoice.getInterestAmount(paymentDate)));
     }
     invoice.addEvent(new InvoiceEvent(InvoiceEventType.Payment, amount));
   }

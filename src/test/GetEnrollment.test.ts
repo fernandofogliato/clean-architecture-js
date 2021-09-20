@@ -1,8 +1,8 @@
-import EnrollStudent from "./EnrollStudent";
-import EnrollStudentInputData from "./EnrollStudentInputData";
-import GetEnrollment from "./GetEnrollment";
-import { InvoiceStatus } from "./Invoice";
-import RepositoryMemoryFactory from "./RepositoryMemoryFactory";
+import EnrollStudent from "../domain/usecase/EnrollStudent";
+import EnrollStudentInputData from "../domain/usecase/data/EnrollStudentInputData";
+import GetEnrollment from "../domain/usecase/GetEnrollment";
+import { InvoiceStatus } from "../domain/entity/Invoice";
+import RepositoryMemoryFactory from "../adapter/factory/RepositoryMemoryFactory";
 
 let enrollStudent: EnrollStudent;
 let getEnrollment: GetEnrollment;
@@ -13,7 +13,7 @@ beforeEach(function () {
   getEnrollment = new GetEnrollment(repositoryMemoryFactory);
 });
 
-test("Should get enrollment with balance", function () {
+test("Should get enrollment with balance", async function () {
   const enrollmentRequest = new EnrollStudentInputData({
     studentName: "Ana Maria",
     studentCpf: "864.464.227-84",
@@ -23,15 +23,13 @@ test("Should get enrollment with balance", function () {
     classroom: "A",
     installments: 12
   });
-  enrollStudent.execute(enrollmentRequest);
-  const getEnrollmentOutputData = getEnrollment.execute("2021EM1A0001");
+  await enrollStudent.execute(enrollmentRequest);
+  const getEnrollmentOutputData = await getEnrollment.execute("2021EM1A0001", new Date("2021-02-01"));
   expect(getEnrollmentOutputData.code).toBe("2021EM1A0001");
   expect(getEnrollmentOutputData.balance).toBe(17000);
 });
 
-test("Should calculate due date and return status open or overdue for each invoice", function () {
-  jest.useFakeTimers('modern').setSystemTime(new Date(2021, 2, 1));
-
+test("Should calculate due date and return status open or overdue for each invoice", async function () {
   const enrollmentRequest = new EnrollStudentInputData({
     studentName: "Ana Maria",
     studentCpf: "864.464.227-84",
@@ -41,8 +39,8 @@ test("Should calculate due date and return status open or overdue for each invoi
     classroom: "A",
     installments: 12
   });
-  enrollStudent.execute(enrollmentRequest);
-  const getEnrollmentOutputData = getEnrollment.execute("2021EM1A0001");
+  await enrollStudent.execute(enrollmentRequest);
+  const getEnrollmentOutputData = await getEnrollment.execute("2021EM1A0001", new Date("2021-02-01"));
   expect(getEnrollmentOutputData.code).toBe("2021EM1A0001");
   expect(getEnrollmentOutputData.balance).toBe(17000)
   expect(getEnrollmentOutputData.invoices[0].status).toBe(InvoiceStatus.Overdue);

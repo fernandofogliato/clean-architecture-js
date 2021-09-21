@@ -2,18 +2,23 @@ import EnrollStudent from "../domain/usecase/EnrollStudent";
 import EnrollStudentInputData from "../domain/usecase/data/EnrollStudentInputData";
 import GetEnrollment from "../domain/usecase/GetEnrollment";
 import PayInvoice from "../domain/usecase/PayInvoice";
-import RepositoryMemoryFactory from "../adapter/factory/RepositoryMemoryFactory";
 import PayInvoiceInputData from "../domain/usecase/data/PayInvoiceInputData";
+import RepositoryDatabaseFactory from "../adapter/factory/RepositoryDatabaseFactory";
+import EnrollmentRepositoryDatabase from "../adapter/repository/database/EnrollmentRepositoryDatabase";
 
 let enrollStudent: EnrollStudent;
 let getEnrollment: GetEnrollment;
 let payInvoice: PayInvoice;
 
 beforeEach(function () {
-  const repositoryMemoryFactory = new RepositoryMemoryFactory()
-  enrollStudent = new EnrollStudent(repositoryMemoryFactory);
-  getEnrollment = new GetEnrollment(repositoryMemoryFactory);
-  payInvoice = new PayInvoice(repositoryMemoryFactory);
+  const repositoryDatabaseFactory = new RepositoryDatabaseFactory();
+  enrollStudent = new EnrollStudent(repositoryDatabaseFactory);
+  getEnrollment = new GetEnrollment(repositoryDatabaseFactory);
+});
+
+afterEach(async function () {
+  const enrollmentRepository = new EnrollmentRepositoryDatabase();
+  await enrollmentRepository.clean();
 });
 
 test("Should pay enrollment invoice", async function () {

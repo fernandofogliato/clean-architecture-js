@@ -17,6 +17,11 @@ describe("Cancel Enrollment Test", function () {
     cancelEnrollment = new CancelEnrollment(repositoryDatabaseFactory);
   });
 
+  afterEach(async function () {
+    const enrollmentRepository = new EnrollmentRepositoryDatabase();
+    await enrollmentRepository.clean();
+  });
+
   test("Should cancel enrollment", async function () {
     const enrollmentRequest = new EnrollStudentInputData({
       studentName: "Ana Maria",
@@ -31,10 +36,5 @@ describe("Cancel Enrollment Test", function () {
     await cancelEnrollment.execute("2021EM1A0001");
     const getEnrollmentOutputData = await getEnrollment.execute("2021EM1A0001", new Date("2021-01-01"));
     expect(getEnrollmentOutputData.status).toBe("cancelled");
-  });
-
-  afterEach(async function () {
-    const enrollmentRepository = new EnrollmentRepositoryDatabase();
-    await enrollmentRepository.clean();
   });
 });

@@ -8,12 +8,10 @@ import EnrollmentRepositoryDatabase from "../adapter/repository/database/Enrollm
 let enrollStudent: EnrollStudent;
 
 describe("Enroll Student Test", function () {  
-  beforeEach(function () {
+  beforeEach(async function () {
     const repositoryDatabaseFactory = new RepositoryDatabaseFactory();
     enrollStudent = new EnrollStudent(repositoryDatabaseFactory);
-  });
 
-  afterEach(async function () {
     const enrollmentRepository = new EnrollmentRepositoryDatabase();
     await enrollmentRepository.clean();
   });
@@ -28,7 +26,7 @@ describe("Enroll Student Test", function () {
       classroom: "A",
       installments: 12    
     });
-    await expect(() => enrollStudent.execute(enrollmentRequest)).rejects.toThrow(new Error("Invalid student name"))
+    await expect(() => enrollStudent.execute(enrollmentRequest, new Date(2021, 6, 1))).rejects.toThrow(new Error("Invalid student name"))
   });
 
   test("Should enroll with valid student name", async function () {
@@ -41,7 +39,7 @@ describe("Enroll Student Test", function () {
       classroom: "A",
       installments: 12    
     });  
-    await expect(enrollStudent.execute(enrollmentRequest, new Date("2021-06-01"))).toBeTruthy()
+    await expect(enrollStudent.execute(enrollmentRequest, new Date(2021, 6, 1))).toBeTruthy()
   });
 
   test("Should not enroll without valid student cpf", async function () {
@@ -55,7 +53,7 @@ describe("Enroll Student Test", function () {
       installments: 12    
     });
 
-    await expect(() => enrollStudent.execute(enrollmentRequest)).rejects.toThrow(new Error("Invalid cpf"))
+    await expect(() => enrollStudent.execute(enrollmentRequest, new Date(2021, 6, 1))).rejects.toThrow(new Error("Invalid cpf"))
   });
 
   test("Should not enroll duplicated student", async function () {
@@ -79,8 +77,8 @@ describe("Enroll Student Test", function () {
       installments: 12    
     });  
 
-    await enrollStudent.execute(enrollmentRequest1, new Date("2021-06-01"));
-    expect(() => enrollStudent.execute(enrollmentRequest2, new Date("2021-06-01"))).rejects.toThrow(new Error("Enrollment with duplicated student is not allowed"))
+    await enrollStudent.execute(enrollmentRequest1, new Date(2021, 6, 1));
+    expect(() => enrollStudent.execute(enrollmentRequest2, new Date(2021, 6, 1))).rejects.toThrow(new Error("Enrollment with duplicated student is not allowed"))
   });
 
   test("Should generate enrollment code", async function () {

@@ -32,9 +32,9 @@ describe("Cancel Enrollment Test", function () {
       classroom: "A",
       installments: 12
     });
-    await enrollStudent.execute(enrollmentRequest, new Date("2021-01-01"));
-    await cancelEnrollment.execute("2021EM1A0001");
-    const getEnrollmentOutputData = await getEnrollment.execute("2021EM1A0001", new Date("2021-01-01"));
-    expect(getEnrollmentOutputData.status).toBe("cancelled");
+    const enrollment = await enrollStudent.execute(enrollmentRequest, new Date(2021, 1, 1));
+    await cancelEnrollment.execute(enrollment.code);
+    const getEnrollmentOutputData = await getEnrollment.execute(enrollment.code, new Date(2021, 1, 1));
+    expect(getEnrollmentOutputData.status).toBe("Cancelled");
   });
 });

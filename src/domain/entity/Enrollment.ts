@@ -7,8 +7,8 @@ import Module from "./Module";
 import Student from "./Student";
 
 export enum EnrollmentStatus {
-  Active,
-  Cancelled
+  Active = 'Active',
+  Cancelled = 'Cancelled'
 }
 
 export default class Enrollment {

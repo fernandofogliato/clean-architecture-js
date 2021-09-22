@@ -1,6 +1,7 @@
+import { EnrollmentStatus } from './../../../domain/entity/Enrollment';
 import Enrollment from "../../../domain/entity/Enrollment";
-import Invoice from "../../../domain/entity/Invoice";
-import InvoiceEvent from "../../../domain/entity/InvoiceEvent";
+import Invoice, { InvoiceStatus } from "../../../domain/entity/Invoice";
+import InvoiceEvent, { InvoiceEventType } from "../../../domain/entity/InvoiceEvent";
 import Student from "../../../domain/entity/Student";
 import EnrollmentRepository from "../../../domain/repository/EnrollmentRepository";
 import ConnectionPool from "../../../infra/database/ConnectionPool";
@@ -27,15 +28,15 @@ export default class EnrollmentRepositoryDatabase implements EnrollmentRepositor
     const level = await this.levelRepository.findByCode(enrollmentData.level);
     const module = await this.moduleRepository.findByCode(enrollmentData.level, enrollmentData.module);
     const classroom = await this.classroomRepository.findByCode(enrollmentData.classroom);
-    const enrollment = new Enrollment(student, level, module, classroom, enrollmentData.issue_date, enrollmentData.sequence, enrollmentData.installments, enrollmentData.status);
-    const invoicesData = await ConnectionPool.query("select * from system.invoice where enrollment = $1", [code]);
+    const enrollment = new Enrollment(student, level, module, classroom, enrollmentData.issue_date, enrollmentData.sequence, enrollmentData.installments, EnrollmentStatus[enrollmentData.status as keyof typeof EnrollmentStatus]);
+    const invoicesData = await ConnectionPool.query("select * from system.invoice where enrollment = $1 order by year, month", [code]);
     const invoices = [];
     for (const invoiceData of invoicesData) {
       const invoice = new Invoice(code, invoiceData.month, invoiceData.year, invoiceData.amount);
       const invoiceEvents = [];
       const invoiceEventsData = await ConnectionPool.query("select * from system.invoice_event where enrollment = $1 and month = $2 and year = $3", [code, invoiceData.month, invoiceData.year]);
       for (const invoiceEventData of invoiceEventsData) {
-        const invoiceEvent = new InvoiceEvent(invoiceEventData.type, invoiceEventData.amount);
+        const invoiceEvent = new InvoiceEvent(InvoiceEventType[invoiceEventData.type as keyof typeof InvoiceEventType], invoiceEventData.amount);
         invoiceEvents.push(invoiceEvent);
       }
       invoice.events = invoiceEvents;
@@ -55,9 +56,10 @@ export default class EnrollmentRepositoryDatabase implements EnrollmentRepositor
 
   async update(enrollment: Enrollment): Promise<void> {
     await ConnectionPool.none("update system.enrollment set status = $1 where code = $2", [enrollment.status, enrollment.code.value]);
+    await ConnectionPool.none("delete from system.invoice_event where enrollment = $1", [enrollment.code.value]);
     for (const invoice of enrollment.invoices) {
       for (const invoiceEvent of invoice.events) {
-        await ConnectionPool.none("insert into system.invoice_event (enrollment, month, year, type, amount) values ($1, $2, $3, $4, $5) on conflict do nothing", [enrollment.code.value, invoice.month, invoice.year, invoiceEvent.type, invoiceEvent.amount]);
+        await ConnectionPool.none("insert into system.invoice_event (enrollment, month, year, type, amount) values ($1, $2, $3, $4, $5)", [enrollment.code.value, invoice.month, invoice.year, invoiceEvent.type, invoiceEvent.amount]);
       }
     }
   }

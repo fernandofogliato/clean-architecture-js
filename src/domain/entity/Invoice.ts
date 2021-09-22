@@ -62,7 +62,7 @@ export default class Invoice {
 
   getInterestAmount(date: Date): number {
     if (this.getStatus(date) === InvoiceStatus.Overdue) {
-      const diff = moment().diff(this.dueDate, 'days') / 100;
+      const diff = moment(date).diff(this.dueDate, 'days') / 100;
       return Math.trunc(this.amount * diff * 100) / 100;
     }
     return 0;

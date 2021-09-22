@@ -34,7 +34,7 @@ export default class EnrollStudent {
 		if (studentsEnrolledInClassroom.length === classroom.capacity) throw new Error("Classroom is over capacity");
 		const existingEnrollment = await this.enrollmentRepository.findByCpf(student.cpf.value);
 		if (existingEnrollment) throw new Error("Enrollment with duplicated student is not allowed");
-		this.enrollmentRepository.save(enrollment);
+		await this.enrollmentRepository.save(enrollment);
 		const enrollStudentOutputData = new EnrollStudentOutputData(enrollment.code.value);
 		for (const invoice of enrollment.invoices) {
 			enrollStudentOutputData.invoices.push(invoice.clone());

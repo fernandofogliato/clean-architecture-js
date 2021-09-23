@@ -10,14 +10,12 @@ let getEnrollment: GetEnrollment;
 let cancelEnrollment: CancelEnrollment;
 
 describe("Cancel Enrollment Test", function () {
-  beforeEach(function () {
+  beforeEach(async function () {
     const repositoryDatabaseFactory = new RepositoryDatabaseFactory();
     enrollStudent = new EnrollStudent(repositoryDatabaseFactory);
     getEnrollment = new GetEnrollment(repositoryDatabaseFactory);
     cancelEnrollment = new CancelEnrollment(repositoryDatabaseFactory);
-  });
 
-  afterEach(async function () {
     const enrollmentRepository = new EnrollmentRepositoryDatabase();
     await enrollmentRepository.clean();
   });

@@ -4,8 +4,9 @@ import ConnectionPool from "../../../infra/database/ConnectionPool";
 
 export default class ClassroomRepositoryDatabase implements ClassroomRepository {
   
-  save(classroom: Classroom): Promise<void> {
-    throw new Error("Method not implemented.");
+  async save(classroom: Classroom): Promise<void> {
+    await ConnectionPool.one("insert into system.classroom (level, module, code, capacity, start_date, end_date) values ($1, $2, $3, $4, $5, $6) returning *", 
+      [classroom.level, classroom.module, classroom.code, classroom.capacity, classroom.startDate, classroom.endDate]);
   }
 
   async findByCode(code: string): Promise<Classroom> {

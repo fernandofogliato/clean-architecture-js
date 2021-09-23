@@ -90,6 +90,7 @@ export default class EnrollmentRepositoryDatabase implements EnrollmentRepositor
     await ConnectionPool.query("delete from system.invoice", []);
     await ConnectionPool.query("delete from system.enrollment", []);
     await ConnectionPool.query("delete from system.student", []);
+    await ConnectionPool.query("delete from system.classroom where code not in ('A', 'B', 'C')", []);
   }
 
 }

@@ -39,4 +39,8 @@ export default class EnrollmentRepositoryMemory implements EnrollmentRepository 
 		const count = this.enrollments.length;
 		return Promise.resolve(count);
 	}
+
+	async getAll(): Promise<Enrollment[]> {
+		return Promise.resolve(this.enrollments);
+	}
 }

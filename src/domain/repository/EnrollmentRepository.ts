@@ -7,4 +7,5 @@ export default interface EnrollmentRepository {
     findByCpf(cpf: string): Promise<Enrollment | undefined>;
     findByCode(code: string): Promise<Enrollment>;
     count(): Promise<number>;
+    getAll(): Promise<Enrollment[]>;
 }

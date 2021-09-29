@@ -93,4 +93,13 @@ export default class EnrollmentRepositoryDatabase implements EnrollmentRepositor
     await ConnectionPool.query("delete from system.classroom where code not in ('A', 'B', 'C')", []);
   }
 
+  async getAll(): Promise<Enrollment[]> {
+    const enrollmentsData = await ConnectionPool.query("select code from system.enrollment order by code", []);
+    const enrollments = [];
+    for (const enrollmentData of enrollmentsData) {
+        const enrollment = await this.findByCode(enrollmentData.code);
+        enrollments.push(enrollment);
+    }
+    return enrollments;
+  }
 }

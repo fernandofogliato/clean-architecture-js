@@ -8,12 +8,9 @@ import EnrollmentRepositoryDatabase from "../adapter/repository/database/Enrollm
 let enrollStudent: EnrollStudent;
 
 describe("Enroll Student Test", function () {  
-  beforeEach(async function () {
+  beforeEach(function () {
     const repositoryDatabaseFactory = new RepositoryDatabaseFactory();
     enrollStudent = new EnrollStudent(repositoryDatabaseFactory);
-
-    const enrollmentRepository = new EnrollmentRepositoryDatabase();
-    await enrollmentRepository.clean();
   });
 
   test("Should not enroll without valid student name", async function () {
@@ -203,4 +200,8 @@ describe("Enroll Student Test", function () {
     expect(enrollment.invoices[11].amount).toEqual(1416.63);
   });
 
+  afterEach(async function () {
+    const enrollmentRepository = new EnrollmentRepositoryDatabase();
+    await enrollmentRepository.clean();
+  });
 });

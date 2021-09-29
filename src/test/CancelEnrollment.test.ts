@@ -10,14 +10,11 @@ let getEnrollment: GetEnrollment;
 let cancelEnrollment: CancelEnrollment;
 
 describe("Cancel Enrollment Test", function () {
-  beforeEach(async function () {
+  beforeEach(function () {
     const repositoryDatabaseFactory = new RepositoryDatabaseFactory();
     enrollStudent = new EnrollStudent(repositoryDatabaseFactory);
     getEnrollment = new GetEnrollment(repositoryDatabaseFactory);
     cancelEnrollment = new CancelEnrollment(repositoryDatabaseFactory);
-
-    const enrollmentRepository = new EnrollmentRepositoryDatabase();
-    await enrollmentRepository.clean();
   });
 
   test("Should cancel enrollment", async function () {
@@ -34,5 +31,10 @@ describe("Cancel Enrollment Test", function () {
     await cancelEnrollment.execute(enrollment.code);
     const getEnrollmentOutputData = await getEnrollment.execute(enrollment.code, new Date(2021, 1, 1));
     expect(getEnrollmentOutputData.status).toBe("Cancelled");
+  });
+
+  afterEach(async function () {
+    const enrollmentRepository = new EnrollmentRepositoryDatabase();
+    await enrollmentRepository.clean();
   });
 });

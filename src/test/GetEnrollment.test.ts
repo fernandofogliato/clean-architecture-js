@@ -9,13 +9,10 @@ let enrollStudent: EnrollStudent;
 let getEnrollment: GetEnrollment;
 
 describe("Get Enrollment tests", function() {
-  beforeEach(async function () {
+  beforeEach(function () {
     const repositoryDatabaseFactory = new RepositoryDatabaseFactory();
     enrollStudent = new EnrollStudent(repositoryDatabaseFactory);
     getEnrollment = new GetEnrollment(repositoryDatabaseFactory);
-
-    const enrollmentRepository = new EnrollmentRepositoryDatabase();
-    await enrollmentRepository.clean();    
   });
 
   test("Should get enrollment with balance", async function () {
@@ -50,4 +47,9 @@ describe("Get Enrollment tests", function() {
     expect(getEnrollmentOutputData.invoices[0].status).toBe(InvoiceStatus.Overdue);
     expect(getEnrollmentOutputData.invoices[1].status).toBe(InvoiceStatus.Open);
   });
+
+  afterEach(async function () {
+    const enrollmentRepository = new EnrollmentRepositoryDatabase();
+    await enrollmentRepository.clean();
+  });  
 });

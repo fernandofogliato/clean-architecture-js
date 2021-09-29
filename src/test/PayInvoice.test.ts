@@ -11,14 +11,11 @@ let getEnrollment: GetEnrollment;
 let payInvoice: PayInvoice;
 
 describe("Pay Invoice Test", function () {  
-  beforeEach(async function () {
+  beforeEach(function () {
     const repositoryDatabaseFactory = new RepositoryDatabaseFactory();
     enrollStudent = new EnrollStudent(repositoryDatabaseFactory);
     getEnrollment = new GetEnrollment(repositoryDatabaseFactory);
     payInvoice = new PayInvoice(repositoryDatabaseFactory);
-
-    const enrollmentRepository = new EnrollmentRepositoryDatabase();
-    await enrollmentRepository.clean();   
   });
 
   test("Should pay enrollment invoice", async function () {
@@ -73,4 +70,9 @@ describe("Pay Invoice Test", function () {
     expect(getEnrollmentOutputData.invoices[0].interests).toBe(70.83);
     expect(getEnrollmentOutputData.balance).toBe(15583.34);
   });
+
+  afterEach(async function () {
+    const enrollmentRepository = new EnrollmentRepositoryDatabase();
+    await enrollmentRepository.clean();
+  });  
 });

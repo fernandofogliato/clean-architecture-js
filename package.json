@@ -6,7 +6,7 @@
   "scripts": {
     "tsc:init": "tsc --init",
     "tsc:build": "tsc",
-    "test": "tsc && jest ./dist --forceExit",
+    "test": "tsc && jest ./dist --forceExit --runInBand",
     "test:enrollstudent": "tsc && jest ./dist/test/EnrollStudent.test.js --forceExit",
     "test:getenrollment": "tsc && jest ./dist/test/GetEnrollment.test.js --forceExit",
     "test:cancelenrollment": "tsc && jest ./dist/test/CancelEnrollment.test.js --forceExit",
